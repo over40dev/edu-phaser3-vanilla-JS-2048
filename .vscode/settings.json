@@ -1,3 +1,4 @@
 {
-  "csharp.format.enable": false
+  "csharp.format.enable": false,
+  "workbench.sideBar.location": "right"
 }
