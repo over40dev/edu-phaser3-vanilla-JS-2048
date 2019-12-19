@@ -1,5 +1,5 @@
 /**
- * Utils.js embedded
+ * Utils.js --- resize game function
  */
 function resizeGame() {
   var canvas = document.querySelector('canvas');

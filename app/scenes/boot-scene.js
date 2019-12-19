@@ -3,8 +3,12 @@ class BootGame extends Phaser.Scene {
     super('BootGame');
   }
 
+  preload() {
+    // absolute path???
+    this.load.image('emptytile', 'app/assets/sprites/emptytile.png');
+  }
+
   create() {
-    console.log('boot-game');
     this.scene.start('PlayGame');
   }
 }
