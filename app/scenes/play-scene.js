@@ -6,7 +6,7 @@ class PlayGame extends Phaser.Scene {
     super('PlayGame');
   }
   create() {    
-    const {rows, cols} = game4096.board;
+    const {rows, cols} = gameOptions.board;
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
         const [xPos, yPos] = this._position(row, col);
@@ -21,7 +21,7 @@ class PlayGame extends Phaser.Scene {
   }
 
   _position(row, col) {
-    const {tileSize, tileSpacing} = game4096.tiles;
+    const {tileSize, tileSpacing} = gameOptions.tiles;
     const xPos = tileSpacing + tileSize/2 + (col *  (tileSpacing + tileSize));
     const yPos = tileSpacing + tileSize/2 + (row *  (tileSpacing + tileSize));
     return [xPos, yPos];
