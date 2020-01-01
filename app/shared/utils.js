@@ -21,7 +21,6 @@ function resizeGame() {
     windowHeight,
     windowRatio,
     gameRatio,
-    );
-  console.log('game w-h', game.config.width, game.config.height);
+  );
 
 }

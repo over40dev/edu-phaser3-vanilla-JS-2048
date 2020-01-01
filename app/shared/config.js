@@ -1,4 +1,6 @@
-var gameOptions = {
+var game;
+
+const gameOptions = {
   board: {
     rows: 4,
     cols: 4,
@@ -8,6 +10,8 @@ var gameOptions = {
     tileSpacing: 20,
   }
 };
+
+
 
 
 

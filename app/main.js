@@ -1,16 +1,14 @@
-var game;
-var gameConfig = {
-  width: gameOptions.board.cols * (),
-  height: gameOptions.board.rows ,
-  backgroundColor: 0xecf0f1,
-  scene: [BootGame, PlayGame],
-};
-
-window.onload = function() {
-  game = new Phaser.Game(gameOptions.config);
+window.onload = function () {
+  const { cols, rows } = gameOptions.board;
+  const { tileSpacing, tileSize } = gameOptions.tiles;
+  var gameConfig = {
+    width: cols * (tileSize + tileSpacing) + tileSpacing,
+    height: rows * (tileSize + tileSpacing) + tileSpacing,
+    backgroundColor: 0xecf0f1,
+    scene: [BootGame, PlayGame]
+  }
+  game = new Phaser.Game(gameConfig);
   window.focus();
-  window.resizeGame();
-  window.addEventListener(
-    'resize', 
-    resizeGame);
+  resizeGame();
+  window.addEventListener("resize", resizeGame);
 }
