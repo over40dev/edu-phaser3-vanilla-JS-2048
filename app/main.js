@@ -1,7 +1,7 @@
 window.onload = function () {
   const { cols, rows } = gameOptions.board;
   const { tileSpacing, tileSize } = gameOptions.tiles;
-  var gameConfig = {
+  const gameConfig = {
     width: cols * (tileSize + tileSpacing) + tileSpacing,
     height: rows * (tileSize + tileSpacing) + tileSpacing,
     backgroundColor: 0xecf0f1,

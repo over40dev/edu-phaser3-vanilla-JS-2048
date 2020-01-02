@@ -11,6 +11,8 @@ const gameOptions = {
   }
 };
 
+const COVER_TILE_VAL = 0;
+
 
 
 

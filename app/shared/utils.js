@@ -15,12 +15,24 @@ function resizeGame() {
     canvas.style.width = (windowHeight * gameRatio) + 'px';
     canvas.style.height = windowHeight + 'px';
   }
-  console.log('resize',
-    canvas,
-    windowWidth,
-    windowHeight,
-    windowRatio,
-    gameRatio,
-  );
+  // console.log('resize',
+  //   canvas,
+  //   windowWidth,
+  //   windowHeight,
+  //   windowRatio,
+  //   gameRatio,
+  // );
 
+}
+
+// Based on CX use of Phaser game methods and objects
+function cxGeomPoint(row, col) {
+  return {
+    x: col,
+    y: row,
+  };
+}
+
+function cxRandom(arr) {
+  return Phaser.Utils.Array.GetRandom(arr);
 }

@@ -4,25 +4,24 @@
 class PlayGame extends Phaser.Scene {
 
   boardArray = [];
-  emptyTiles = [];
 
   constructor() {
     super('PlayGame');
   }
+
   create() {
     const { rows, cols } = gameOptions.board;
-    for (let col = 0; col < cols; col++) {
-      this.boardArray[col] = [];
-      for (let row = 0; row < rows; row++) {
-        const { x, y } = this._position(col, row);
-        console.log(x,y);
+    for (let row = 0; row < cols; row++) {
+      this.boardArray[row] = [];
+      for (let col = 0; col < rows; col++) {
+        const { x, y } = this._position(row, col);
         this.add.image(x, y, 'emptytile');
         const tile = this.add.sprite(x, y, 'tiles', 0);
-        tile.visible = true;
-        this.boardArray[col][row] = {
-          tileValue: 0,
+        tile.visible = false;
+        this.boardArray[row][col] = {
+          tileValue: COVER_TILE_VAL,
           tileSprite: tile,
-        }
+        };
       }
     }
     this._addTile();
@@ -30,28 +29,29 @@ class PlayGame extends Phaser.Scene {
   }
 
   _addTile() {
+    const emptyTiles = [];
     const { cols, rows } = gameOptions.board;
 
-    for (let col = 0; col < cols; col++) {
-      for (let row = 0; row < rows; row++) {
-        if (this.boardArray[col][row].tileValue = 0) {
-          this.emptyTiles.push({col,row});
+    for (let row = 0; row < cols; row++) {
+      for (let col = 0; col < rows; col++) {
+        if (this.boardArray[row][col].tileValue === 0) {
+          emptyTiles.push({row, col});
         }
       }
     }
-    if (this.emptyTiles.length > 0) {
-      const chosenTile = Phaser.Utils.Array.GetRandom(this.emptyTiles);
-      this.boardArray[chosenTile.row][chosenTile.col].tileValue = 1;
-      this.boardArray[chosenTile.row][chosenTile.col].tileSprite = true;
-      this.boardArray[chosenTile.row][chosenTile.col].tileSprite.setFrame(0);
+    if (emptyTiles.length > 0) {
+      const {row, col} = cxRandom(emptyTiles);
+      this.boardArray[row][col].tileValue = 1;
+      this.boardArray[row][col].tileSprite.visible = true;
+      this.boardArray[row][col].tileSprite.setFrame(0);
     }
   }
 
-  _position(col, row) {
+  _position(row, col) {
     const { tileSize, tileSpacing } = gameOptions.tiles;
-    const pos = new Phaser.Geom.Point(
-      (col + 1) * tileSpacing + (col + .5) * tileSize,
+    const pos = cxGeomPoint(
       (row + 1) * tileSpacing + (row + .5) * tileSize,
+      (col + 1) * tileSpacing + (col + .5) * tileSize,
     );
     return pos;
   }
