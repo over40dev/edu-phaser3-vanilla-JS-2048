@@ -4,12 +4,14 @@
 class PlayGame extends Phaser.Scene {
 
   boardArray = [];
+  canMove = false;
 
   constructor() {
     super('PlayGame');
   }
 
   create() {
+    this.canMove = false;
     const { rows, cols } = gameOptions.board;
     for (let row = 0; row < cols; row++) {
       this.boardArray[row] = [];
@@ -49,6 +51,8 @@ class PlayGame extends Phaser.Scene {
         targets: [this.boardArray[row][col].tileSprite],
         alpha: 1,
         duration: gameOptions.tweenSpeed,
+        callbackScope: this,
+        onComplete: () => {this.canMove = true},
       });
     }
   }
