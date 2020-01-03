@@ -16,7 +16,7 @@ class PlayGame extends Phaser.Scene {
     for (let row = 0; row < cols; row++) {
       this.boardArray[row] = [];
       for (let col = 0; col < rows; col++) {
-        const { x, y } = this._position(row, col);
+        const { x, y } = this._getTilePosition(row, col);
         this.add.image(x, y, 'emptytile');
         const tile = this.add.sprite(x, y, 'tiles', 0);
         tile.visible = false;
@@ -28,6 +28,8 @@ class PlayGame extends Phaser.Scene {
     }
     this._addTile();
     this._addTile();
+    this.input.keyboard.on('keydown', this._handleKey, this);
+    this.input.on('pointerup', this._handleSwipe, this);
   }
 
   _addTile() {
@@ -57,12 +59,24 @@ class PlayGame extends Phaser.Scene {
     }
   }
 
-  _position(row, col) {
+  _getTilePosition(row, col) {
     const { tileSize, tileSpacing } = gameOptions.tiles;
-    const pos = cxGeomPoint(
+    return cxGeomPoint(
       (row + 1) * tileSpacing + (row + .5) * tileSize,
       (col + 1) * tileSpacing + (col + .5) * tileSize,
     );
-    return pos;
+  }
+
+  _handleKey(e) {
+    const keyPressed = e.code;
+    console.log('pressed: ', keyPressed);
+  }
+
+  _handleSwipe(e) {
+    const swipeTime = e.upTime - e.downTime;
+    const swipe = new cxGeomPoint(e.upX - e.downX, e.upY - e.downY);
+    console.log('time: ', swipeTime);
+    console.log('H-dist: ', swipe.x);
+    console.log('V-dist: ', swipe.y);
   }
 }
