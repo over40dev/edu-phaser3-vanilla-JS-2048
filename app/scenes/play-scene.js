@@ -44,6 +44,12 @@ class PlayGame extends Phaser.Scene {
       this.boardArray[row][col].tileValue = 1;
       this.boardArray[row][col].tileSprite.visible = true;
       this.boardArray[row][col].tileSprite.setFrame(0);
+      this.boardArray[row][col].tileSprite.alpha = 0;
+      this.tweens.add({
+        targets: [this.boardArray[row][col].tileSprite],
+        alpha: 1,
+        duration: gameOptions.tweenSpeed,
+      });
     }
   }
 
