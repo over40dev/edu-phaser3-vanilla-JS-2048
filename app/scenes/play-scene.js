@@ -13,6 +13,7 @@ class PlayGame extends Phaser.Scene {
   create() {
     this.canMove = false;
     const { rows, cols } = gameOptions.board;
+  
     for (let row = 0; row < cols; row++) {
       this.boardArray[row] = [];
       for (let col = 0; col < rows; col++) {
@@ -39,12 +40,12 @@ class PlayGame extends Phaser.Scene {
     for (let row = 0; row < cols; row++) {
       for (let col = 0; col < rows; col++) {
         if (this.boardArray[row][col].tileValue === 0) {
-          emptyTiles.push({row, col});
+          emptyTiles.push({ row, col });
         }
       }
     }
     if (emptyTiles.length > 0) {
-      const {row, col} = cxRandom(emptyTiles);
+      const { row, col } = cxRandom(emptyTiles);
       this.boardArray[row][col].tileValue = 1;
       this.boardArray[row][col].tileSprite.visible = true;
       this.boardArray[row][col].tileSprite.setFrame(0);
@@ -54,7 +55,7 @@ class PlayGame extends Phaser.Scene {
         alpha: 1,
         duration: gameOptions.tweenSpeed,
         callbackScope: this,
-        onComplete: () => {this.canMove = true},
+        onComplete: () => { this.canMove = true },
       });
     }
   }
@@ -68,15 +69,43 @@ class PlayGame extends Phaser.Scene {
   }
 
   _handleKey(e) {
-    const keyPressed = e.code;
-    console.log('pressed: ', keyPressed);
+    if (this.canMove) {
+      // look for WASD and arrow keys to move using keyboard
+      switch (e.code) {
+        case "ArrowLeft":
+        case "KeyA":
+          this._makeMove(LEFT);
+          break;
+        case "ArrowRight":
+        case "KeyD":
+          this._makeMove(RIGHT);
+          break;
+        case "KeyW":
+        case "ArrowUp":
+          this._makeMove(UP);
+          break;
+        case "KeyS":
+        case "ArrowDown":
+          this._makeMove(DOWN);
+          break;
+
+        default:
+          break;
+      }
+    }
   }
 
+  /** TODO: handleSwipe imp */
   _handleSwipe(e) {
     const swipeTime = e.upTime - e.downTime;
     const swipe = new cxGeomPoint(e.upX - e.downX, e.upY - e.downY);
     console.log('time: ', swipeTime);
     console.log('H-dist: ', swipe.x);
     console.log('V-dist: ', swipe.y);
+  }
+  
+  /** TODO: makeMove impl */
+  _makeMove(dir) {
+    console.log('move: ', dir);
   }
 }

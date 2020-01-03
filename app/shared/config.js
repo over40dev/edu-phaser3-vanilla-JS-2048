@@ -1,5 +1,7 @@
+// GLOBAL GAME INSTANCE
 var game;
 
+// GAME OPTIONS - 4096
 const gameOptions = {
   board: {
     rows: 4,
@@ -9,11 +11,19 @@ const gameOptions = {
     tileSize: 200,
     tileSpacing: 20,
   },
-  tweenSpeed: 2000
+  tweenSpeed: 2000,
 };
 
-const COVER_TILE_VAL = 0;
+// GAME CONSTANTS
 
+// moves
+const LEFT = 0;
+const RIGHT = 1;
+const UP = 2;
+const DOWN = 3;
+
+// tile
+const COVER_TILE_VAL = 0;
 
 
 
