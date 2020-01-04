@@ -13,7 +13,7 @@ class PlayGame extends Phaser.Scene {
   create() {
     this.canMove = false;
     const { rows, cols } = gameOptions.board;
-  
+
     for (let row = 0; row < cols; row++) {
       this.boardArray[row] = [];
       for (let col = 0; col < rows; col++) {
@@ -95,15 +95,42 @@ class PlayGame extends Phaser.Scene {
     }
   }
 
-  /** TODO: handleSwipe imp */
   _handleSwipe(e) {
+    const {
+      swipeMaxTime,
+      swipeMinDist,
+      swipeMinNormal,
+    } = gameOptions;
     const swipeTime = e.upTime - e.downTime;
-    const swipe = new cxGeomPoint(e.upX - e.downX, e.upY - e.downY);
-    console.log('time: ', swipeTime);
-    console.log('H-dist: ', swipe.x);
-    console.log('V-dist: ', swipe.y);
+    const fastEnough = swipeTime < swipeMaxTime;
+    const swipe = CX.getVectorPoint(e.upX - e.downX, e.upY - e.downY);
+    const swipeMagnitude = CX.getMagnitude(swipe);
+    const longEnough = swipeMagnitude > swipeMinDist;
+    if (longEnough && fastEnough) {
+      CX.setMagnitude(swipe);
+      if (swipe.x > swipeMinNormal) {
+        this._makeMove(RIGHT);
+      }
+      if (swipe.x < -swipeMinNormal) {
+        this._makeMove(LEFT);
+      }
+      if (swipe.y > swipeMinNormal) {
+        this._makeMove(DOWN);
+      }
+      if (swipe.y < -swipeMinNormal) {
+        this._makeMove(UP);
+      }
+    }
+    // console.log('time: ', swipeTime);
+    // console.log('H-dist: ', swipe.x);
+    // console.log('V-dist: ', swipe.y);
+    // console.log(
+    //   swipeMaxTime,
+    //   swipeMinDist,
+    //   swipeMinNormal,
+    // );
   }
-  
+
   /** TODO: makeMove impl */
   _makeMove(dir) {
     console.log('move: ', dir);

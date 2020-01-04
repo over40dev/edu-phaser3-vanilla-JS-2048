@@ -12,6 +12,9 @@ const gameOptions = {
     tileSpacing: 20,
   },
   tweenSpeed: 2000,
+  swipeMaxTime: 1000,
+  swipeMinDist: 20,
+  swipeMinNormal: 0.85,
 };
 
 // GAME CONSTANTS

@@ -9,6 +9,6 @@ window.onload = function () {
   }
   game = new Phaser.Game(gameConfig);
   window.focus();
-  resizeGame();
-  window.addEventListener("resize", resizeGame);
+  CX.resize();
+  window.addEventListener("resize", CX.resize);
 }

@@ -1,7 +1,24 @@
 /**
- * Utils.js --- resize game function
+ * CX allows for common API 
+ * to local Util functions 
+ * required by app, etc.
  */
-function resizeGame() {
+const CX = {
+  random: (arr) => cxRandom(arr),
+  resize: () => cxResize(),
+  getVectorPoint: (row, col) => cxGeomPoint(row, col),
+  setMagnitude: (swipe) => cxSetMagnitude(swipe),
+  getMagnitude: (swipe) => cxGetMagnitude(swipe),
+}
+
+
+
+
+
+/**
+ * Utils.js --- CX-Phaser-Lite (just what's used)
+ */
+function cxResize() {
   var canvas = document.querySelector('canvas');
   var windowWidth = window.innerWidth;
   var windowHeight = window.innerHeight;
@@ -36,3 +53,12 @@ function cxGeomPoint(row, col) {
 function cxRandom(arr) {
   return Phaser.Utils.Array.GetRandom(arr);
 }
+
+function cxSetMagnitude(swipe) {
+  return Phaser.Geom.Point.SetMagnitude(swipe, 1);
+}
+
+function cxGetMagnitude(swipe) {
+  return Phaser.Geom.Point.GetMagnitude(swipe);
+}
+
