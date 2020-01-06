@@ -131,8 +131,25 @@ class PlayGame extends Phaser.Scene {
     // );
   }
 
-  /** TODO: makeMove impl */
-  _makeMove(dir) {
-    console.log('move: ', dir);
+  /** TODO: makeMove impl 01 */
+  _makeMove(d) {
+    const {rows, cols} = gameOptions.board;
+    const dRow = (d === LEFT || d === RIGHT) ? 0 : d === UP ? -1 : 1;
+    const dCol = (d === UP || d === DOWN) ? 0 : d === LEFT ? -1 : 1;
+    
+    this.canMove = false;
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const curRow = dRow === 1 ? (rows - 1) - row : row;
+        const curCol = dCol === 1 ? (cols - 1) - col : col;
+        const tileValue = this.boardArray[curRow][curCol].tileValue;
+        if (tileValue != 0) {
+          const newPos = this._getTilePosition(curRow + dRow, curCol + dCol);
+          this.boardArray[curRow][curCol].tileSprite.x = newPos.x;
+          this.boardArray[curRow][curCol].tileSprite.y = newPos.y;
+        }
+      }
+    }
+    
   }
 }

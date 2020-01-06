@@ -1,4 +1,5 @@
 {
   "csharp.format.enable": false,
-  "workbench.sideBar.location": "right"
+  "workbench.sideBar.location": "right",
+  "editor.fontSize": 21
 }
