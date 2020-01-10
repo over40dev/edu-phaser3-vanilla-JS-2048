@@ -7,7 +7,7 @@ const CX = {
   random: (arr) => cxRandom(arr),
   resize: () => cxResize(),
   getVectorPoint: (row, col) => cxGeomPoint(row, col),
-  setMagnitude: (swipe) => cxSetMagnitude(swipe),
+  setMagnitude: (swipe, mag) => cxSetMagnitude(swipe, mag),
   getMagnitude: (swipe) => cxGetMagnitude(swipe),
 }
 
@@ -54,8 +54,8 @@ function cxRandom(arr) {
   return Phaser.Utils.Array.GetRandom(arr);
 }
 
-function cxSetMagnitude(swipe) {
-  return Phaser.Geom.Point.SetMagnitude(swipe, 1);
+function cxSetMagnitude(swipe, mag = 1) {
+  return Phaser.Geom.Point.SetMagnitude(swipe, mag);
 }
 
 function cxGetMagnitude(swipe) {
