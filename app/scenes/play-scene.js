@@ -135,30 +135,43 @@ class PlayGame extends Phaser.Scene {
 
   /** TODO: makeMove impl v02 */
   _makeMove(d) {
-    const { rows, cols } = gameOptions.board;
     const dRow = (d === LEFT || d === RIGHT) ? 0 : d === UP ? -1 : 1;
     const dCol = (d === UP || d === DOWN) ? 0 : d === LEFT ? -1 : 1;
-
+    
     this.canMove = false;
     let movedTiles = 0;
-    let firstRow = (d === UP) ? 1 : 0;
-    let lastRow = rows - ((d === DOWN) ? 1 : 0);
-    let firstCol = (d === LEFT) ? 1 : 0;
-    let lastCol = cols - ((d === RIGHT) ? 1 : 0);
+    const { rows, cols } = gameOptions.board;
+    const firstRow = (d === UP) ? 1 : 0;
+    const lastRow = rows - ((d === DOWN) ? 1 : 0);
+    const firstCol = (d === LEFT) ? 1 : 0;
+    const lastCol = cols - ((d === RIGHT) ? 1 : 0);
     for (let row = firstRow; row < lastRow; row++) {
       for (let col = firstCol; col < lastCol; col++) {
         const curRow = dRow === 1 ? (lastRow - 1) - row : row;
         const curCol = dCol === 1 ? (lastCol - 1) - col : col;
         const tileValue = this.boardArray[curRow][curCol].tileValue;
         if (tileValue != 0) {
+          let newRow = curRow;
+          let newCol = curCol;
+          while (this._isLegalPosition(newRow + dRow, newCol + dCol)) {
+            newRow += dRow;
+            newCol += dCol;
+            console.log(newRow, newCol);
+          }
           movedTiles++;
           this.boardArray[curRow][curCol].tileSprite.depth = movedTiles;
-          const newPos = this._getTilePosition(curRow + dRow, curCol + dCol);
+          const newPos = this._getTilePosition(newRow, newCol);
           this.boardArray[curRow][curCol].tileSprite.x = newPos.x;
           this.boardArray[curRow][curCol].tileSprite.y = newPos.y;
         }
       }
     }
+  }
 
+  _isLegalPosition(r, c) {
+    const { rows, cols } = gameOptions.board;
+    const rowInside = r >= 0 && r < rows;
+    const colInside = c >= 0 && c < cols;
+    return rowInside && colInside;
   }
 }
