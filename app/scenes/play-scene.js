@@ -137,32 +137,41 @@ class PlayGame extends Phaser.Scene {
   _makeMove(d) {
     const dRow = (d === LEFT || d === RIGHT) ? 0 : d === UP ? -1 : 1;
     const dCol = (d === UP || d === DOWN) ? 0 : d === LEFT ? -1 : 1;
-    
+
     this.canMove = false;
     let movedTiles = 0;
     const { rows, cols } = gameOptions.board;
-    const firstRow = (d === UP) ? 1 : 0;
-    const lastRow = rows - ((d === DOWN) ? 1 : 0);
-    const firstCol = (d === LEFT) ? 1 : 0;
-    const lastCol = cols - ((d === RIGHT) ? 1 : 0);
-    for (let row = firstRow; row < lastRow; row++) {
-      for (let col = firstCol; col < lastCol; col++) {
-        const curRow = dRow === 1 ? (lastRow - 1) - row : row;
-        const curCol = dCol === 1 ? (lastCol - 1) - col : col;
-        const tileValue = this.boardArray[curRow][curCol].tileValue;
-        if (tileValue != 0) {
-          let newRow = curRow;
-          let newCol = curCol;
-          while (this._isLegalPosition(newRow + dRow, newCol + dCol)) {
-            newRow += dRow;
-            newCol += dCol;
-            console.log(newRow, newCol);
+    const _firstRow = (d === UP) ? 1 : 0;
+    const _lastRow = rows - ((d === DOWN) ? 1 : 0);
+    const _firstCol = (d === LEFT) ? 1 : 0;
+    const _lastCol = cols - ((d === RIGHT) ? 1 : 0);
+    for (let row = _firstRow; row < _lastRow; row++) {
+      for (let col = _firstCol; col < _lastCol; col++) {
+        const _curRow = dRow === 1 ? (_lastRow - 1) - row : row;
+        const _curCol = dCol === 1 ? (_lastCol - 1) - col : col;
+        const _curTile = this.boardArray[_curRow][_curCol];
+        const _tileValue = _curTile.tileValue;
+        if (_tileValue != 0) {
+          let _newRow = _curRow;
+          let _newCol = _curCol;
+          while (this._isLegalPosition(_newRow + dRow, _newCol + dCol)) {
+            _newRow += dRow;
+            _newCol += dCol;
           }
           movedTiles++;
-          this.boardArray[curRow][curCol].tileSprite.depth = movedTiles;
-          const newPos = this._getTilePosition(newRow, newCol);
-          this.boardArray[curRow][curCol].tileSprite.x = newPos.x;
-          this.boardArray[curRow][curCol].tileSprite.y = newPos.y;
+          _curTile.depth = movedTiles;
+          const _newTile = this.boardArray[_newRow][_newCol];
+          const _newPos = this._getTilePosition(_newRow, _newCol);
+          _curTile.tileSprite.x = _newPos.x;
+          _curTile.tileSprite.y = _newPos.y;
+          _curTile.tileValue = 0;
+          if (_newTile.tileValue === _tileValue) {
+            _newTile.tileValue++;
+            _curTile.tileSprite.setFrame(_tileValue)
+          } else {
+            _newTile.tileValue = _tileValue;
+          }
+
         }
       }
     }
