@@ -140,12 +140,15 @@ class PlayGame extends Phaser.Scene {
     const dCol = (d === UP || d === DOWN) ? 0 : d === LEFT ? -1 : 1;
 
     this.canMove = false;
+    let movedTiles = 0;
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
         const curRow = dRow === 1 ? (rows - 1) - row : row;
         const curCol = dCol === 1 ? (cols - 1) - col : col;
         const tileValue = this.boardArray[curRow][curCol].tileValue;
         if (tileValue != 0) {
+          movedTiles++;
+          this.boardArray[curRow][curCol].tileSprite.depth = movedTiles;
           const newPos = this._getTilePosition(curRow + dRow, curCol + dCol);
           this.boardArray[curRow][curCol].tileSprite.x = newPos.x;
           this.boardArray[curRow][curCol].tileSprite.y = newPos.y;
