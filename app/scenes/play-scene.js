@@ -3,21 +3,23 @@
  */
 class PlayGame extends Phaser.Scene {
 
-  boardArray = [];
-  canMove = false;
-
   constructor() {
     super('PlayGame');
   }
 
+  preload() {
+    this.configProps();
+  }
+
   create() {
     this.canMove = false;
-    const { rows, cols } = gameOptions.board;
+    this.boardArray = [];
+    const { cols, rows } = this;
 
-    for (let row = 0; row < cols; row++) {
+    for (let row = 0; row < rows; row++) {
       this.boardArray[row] = [];
-      for (let col = 0; col < rows; col++) {
-        const { x, y } = this._getTilePosition(row, col);
+      for (let col = 0; col < cols; col++) {
+        const { x, y } = this.getTilePosition(row, col);
         this.add.image(x, y, 'emptytile');
         const tile = this.add.sprite(x, y, 'tiles', 0);
         tile.visible = false;
@@ -27,31 +29,32 @@ class PlayGame extends Phaser.Scene {
         };
       }
     }
-    this._addTile();
-    this._addTile();
-    this.input.keyboard.on('keydown', this._handleKey, this);
-    this.input.on('pointerup', this._handleSwipe, this);
+    this.addTile();
+    this.addTile();
+    this.input.keyboard.on('keydown', this.handleKey, this);
+    this.input.on('pointerup', this.handleSwipe, this);
   }
 
-  _addTile() {
+  addTile() {
     const emptyTiles = [];
-    const { cols, rows } = gameOptions.board;
+    const { cols, rows } = this;
 
     for (let row = 0; row < cols; row++) {
       for (let col = 0; col < rows; col++) {
-        if (this.boardArray[row][col].tileValue === 0) {
+        if (this.isEmptyCell(row, col)) {
           emptyTiles.push({ row, col });
         }
       }
     }
     if (emptyTiles.length > 0) {
       const { row, col } = cxRandom(emptyTiles);
-      this.boardArray[row][col].tileValue = 1;
-      this.boardArray[row][col].tileSprite.visible = true;
-      this.boardArray[row][col].tileSprite.setFrame(0);
-      this.boardArray[row][col].tileSprite.alpha = 0;
+      const board = this.boardArray[row][col];
+      board.tileValue = 1;
+      board.tileSprite.visible = true;
+      board.tileSprite.setFrame(0);
+      board.tileSprite.alpha = 0;
       this.tweens.add({
-        targets: [this.boardArray[row][col].tileSprite],
+        targets: [board.tileSprite],
         alpha: 1,
         duration: gameOptions.tweenSpeed,
         callbackScope: this,
@@ -60,33 +63,29 @@ class PlayGame extends Phaser.Scene {
     }
   }
 
-  _getTilePosition(row, col) {
-    const { tileSize, tileSpacing } = gameOptions.tiles;
-    return cxGeomPoint(
-      (row + 1) * tileSpacing + (row + .5) * tileSize,
-      (col + 1) * tileSpacing + (col + .5) * tileSize,
-    );
+  isEmptyCell(row, col) {
+    return (this.boardArray[row][col].tileValue === COVER_TILE_VAL);
   }
 
-  _handleKey(e) {
+  handleKey(e) {
     if (this.canMove) {
       // look for WASD and arrow keys to move using keyboard
       switch (e.code) {
         case "ArrowLeft":
         case "KeyA":
-          this._makeMove(LEFT);
+          this.makeMove(LEFT);
           break;
         case "ArrowRight":
         case "KeyD":
-          this._makeMove(RIGHT);
+          this.makeMove(RIGHT);
           break;
         case "KeyW":
         case "ArrowUp":
-          this._makeMove(UP);
+          this.makeMove(UP);
           break;
         case "KeyS":
         case "ArrowDown":
-          this._makeMove(DOWN);
+          this.makeMove(DOWN);
           break;
 
         default:
@@ -95,7 +94,7 @@ class PlayGame extends Phaser.Scene {
     }
   }
 
-  _handleSwipe(e) {
+  handleSwipe(e) {
     if (this.canMove) {
       const {
         swipeMaxTime,
@@ -110,16 +109,16 @@ class PlayGame extends Phaser.Scene {
       if (longEnough && fastEnough) {
         CX.setMagnitude(swipe, 1); // normalize vector to magnitude of 1
         if (swipe.x > swipeMinNormal) {
-          this._makeMove(RIGHT);
+          this.makeMove(RIGHT);
         }
         if (swipe.x < -swipeMinNormal) {
-          this._makeMove(LEFT);
+          this.makeMove(LEFT);
         }
         if (swipe.y > swipeMinNormal) {
-          this._makeMove(DOWN);
+          this.makeMove(DOWN);
         }
         if (swipe.y < -swipeMinNormal) {
-          this._makeMove(UP);
+          this.makeMove(UP);
         }
       }
       // console.log('time: ', swipeTime);
@@ -133,52 +132,99 @@ class PlayGame extends Phaser.Scene {
     }
   }
 
-  /** TODO: makeMove impl v02 */
-  _makeMove(d) {
-    const dRow = (d === LEFT || d === RIGHT) ? 0 : d === UP ? -1 : 1;
-    const dCol = (d === UP || d === DOWN) ? 0 : d === LEFT ? -1 : 1;
-
+  /** TODO: makeMove impl v03 */
+  makeMove(d) {
     this.canMove = false;
+    this.configProps(d);
+    const {
+      firstRow, lastRow, firstCol, lastCol, dRow, dCol,
+    } = this;
     let movedTiles = 0;
-    const { rows, cols } = gameOptions.board;
-    const _firstRow = (d === UP) ? 1 : 0;
-    const _lastRow = rows - ((d === DOWN) ? 1 : 0);
-    const _firstCol = (d === LEFT) ? 1 : 0;
-    const _lastCol = cols - ((d === RIGHT) ? 1 : 0);
-    for (let row = _firstRow; row < _lastRow; row++) {
-      for (let col = _firstCol; col < _lastCol; col++) {
-        const _curRow = dRow === 1 ? (_lastRow - 1) - row : row;
-        const _curCol = dCol === 1 ? (_lastCol - 1) - col : col;
+    for (let row = firstRow; row < lastRow; row++) {
+      for (let col = firstCol; col < lastCol; col++) {
+        const _curRow = dRow === 1 ? (lastRow - 1) - row : row;
+        const _curCol = dCol === 1 ? (lastCol - 1) - col : col;
         const _curTile = this.boardArray[_curRow][_curCol];
-        const _tileValue = _curTile.tileValue;
-        if (_tileValue != 0) {
-          let _newRow = _curRow;
-          let _newCol = _curCol;
-          while (this._isLegalPosition(_newRow + dRow, _newCol + dCol)) {
-            _newRow += dRow;
-            _newCol += dCol;
+        const _curVal = _curTile.tileValue;
+
+        if (_curVal != COVER_TILE_VAL) {
+          let newRow = _curRow;
+          let newCol = _curCol;
+          while (this.isLegalPosition(newRow + dRow, newCol + dCol)) {
+            newRow += dRow;
+            newCol += dCol;
           }
           movedTiles++;
           _curTile.depth = movedTiles;
-          const _newTile = this.boardArray[_newRow][_newCol];
-          const _newPos = this._getTilePosition(_newRow, _newCol);
-          _curTile.tileSprite.x = _newPos.x;
-          _curTile.tileSprite.y = _newPos.y;
-          _curTile.tileValue = 0;
-          if (_newTile.tileValue === _tileValue) {
-            _newTile.tileValue++;
-            _curTile.tileSprite.setFrame(_tileValue)
-          } else {
-            _newTile.tileValue = _tileValue;
-          }
-
+          const newTile = this.boardArray[newRow][newCol];
+          const newPos = this.getTilePosition(newRow, newCol);
+          this.updateTilePosition(_curTile, newTile, newPos, _curVal);
         }
       }
     }
+    this.refreshBoard();
   }
 
-  _isLegalPosition(r, c) {
+  refreshBoard() {
+    const { rows, cols } = this;
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const { x, y } = this.getTilePosition(row, col);
+        const sprite = this.boardArray[row][col].tileSprite;
+        const tileValue = this.boardArray[row][col].tileValue;
+        sprite.x = x;
+        sprite.y = y;
+        if (tileValue > COVER_TILE_VAL) {
+          sprite.visible = true;
+          sprite.setFrame(tileValue - 1);
+        } else {
+          sprite.visible = false;
+        }
+      }
+    }
+    this.addTile();
+  }
+
+  configProps(d = null) {
     const { rows, cols } = gameOptions.board;
+    const { tileSize, tileSpacing } = gameOptions.tiles;
+    this.rows = rows;
+    this.cols = cols;
+    this.tileSize = tileSize;
+    this.tileSpacing = tileSpacing;
+    if (d) { // direction MOVE
+      this.dRow = (d === LEFT || d === RIGHT) ? 0 : (d === DOWN) ? 1 : -1;
+      this.dCol = (d === UP || d === DOWN) ? 0 : (d === RIGHT) ? 1 : -1;
+      this.firstRow = (d === UP) ? 1 : 0;
+      this.lastRow = rows - ((d === DOWN) ? 1 : 0);
+      this.firstCol = (d === LEFT) ? 1 : 0;
+      this.lastCol = cols - ((d === RIGHT) ? 1 : 0);
+    }
+
+  }
+
+  getTilePosition(row, col) {
+    const { tileSize, tileSpacing } = this;
+    return cxGeomPoint(
+      (row + 1) * tileSpacing + (row + .5) * tileSize,
+      (col + 1) * tileSpacing + (col + .5) * tileSize,
+    );
+  }
+
+  updateTilePosition(curTile, newTile, newPos, curVal) {
+    curTile.tileSprite.x = newPos.x;
+    curTile.tileSprite.y = newPos.y;
+    curTile.tileValue = 0;
+    if (newTile.tileValue === curVal) {
+      newTile.tileValue++;
+      curTile.tileSprite.setFrame(curVal)
+    } else {
+      newTile.tileValue = curVal;
+    }
+  }
+
+  isLegalPosition(r, c) {
+    const { rows, cols } = this;
     const rowInside = r >= 0 && r < rows;
     const colInside = c >= 0 && c < cols;
     return rowInside && colInside;
