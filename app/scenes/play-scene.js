@@ -136,9 +136,7 @@ class PlayGame extends Phaser.Scene {
   makeMove(d) {
     this.canMove = false;
     this.configProps(d);
-    const {
-      firstRow, lastRow, firstCol, lastCol, dRow, dCol,
-    } = this;
+    const {firstRow, lastRow, firstCol, lastCol, dRow, dCol,} = this;
     let movedTiles = 0;
     for (let row = firstRow; row < lastRow; row++) {
       for (let col = firstCol; col < lastCol; col++) {
@@ -150,7 +148,7 @@ class PlayGame extends Phaser.Scene {
         if (_curVal != COVER_TILE_VAL) {
           let newRow = _curRow;
           let newCol = _curCol;
-          while (this.isLegalPosition(newRow + dRow, newCol + dCol)) {
+          while (this.isLegalPosition(newRow + dRow, newCol + dCol, _curVal)) {
             newRow += dRow;
             newCol += dCol;
           }
@@ -185,6 +183,10 @@ class PlayGame extends Phaser.Scene {
     this.addTile();
   }
 
+  /**
+   * direction: LEFT | RIGHT | UP | DOWN
+   * @param {enum} d 
+   */
   configProps(d = null) {
     const { rows, cols } = gameOptions.board;
     const { tileSize, tileSpacing } = gameOptions.tiles;
@@ -192,7 +194,7 @@ class PlayGame extends Phaser.Scene {
     this.cols = cols;
     this.tileSize = tileSize;
     this.tileSpacing = tileSpacing;
-    if (d) { // direction MOVE
+    if (d) { // MOVE direction
       this.dRow = (d === LEFT || d === RIGHT) ? 0 : (d === DOWN) ? 1 : -1;
       this.dCol = (d === UP || d === DOWN) ? 0 : (d === RIGHT) ? 1 : -1;
       this.firstRow = (d === UP) ? 1 : 0;
@@ -223,10 +225,23 @@ class PlayGame extends Phaser.Scene {
     }
   }
 
-  isLegalPosition(r, c) {
-    const { rows, cols } = this;
-    const rowInside = r >= 0 && r < rows;
-    const colInside = c >= 0 && c < cols;
-    return rowInside && colInside;
+  /**
+   * 
+   * @param {number} row 
+   * @param {number} col 
+   * @param {number} value 
+   */
+  isLegalPosition(row, col, value) {
+    const rowInside = row >= 0 && row < this.rows;
+    const colInside = col >= 0 && col < this.cols;
+    
+    if (rowInside && colInside) {
+      // 2 legal positions to move --- empty && same tile value
+      const emptySpot = this.boardArray[row][col].tileValue === COVER_TILE_VAL;
+      const sameValue = this.boardArray[row][col].tileValue === value;
+  
+      return (emptySpot || sameValue);
+    } 
+    return false;
   }
 }
