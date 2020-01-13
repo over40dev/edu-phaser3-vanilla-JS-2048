@@ -79,12 +79,12 @@ class PlayGame extends Phaser.Scene {
         case "KeyD":
           this.makeMove(RIGHT);
           break;
-        case "KeyW":
         case "ArrowUp":
+        case "KeyW":
           this.makeMove(UP);
           break;
-        case "KeyS":
         case "ArrowDown":
+        case "KeyS":
           this.makeMove(DOWN);
           break;
 
@@ -136,31 +136,39 @@ class PlayGame extends Phaser.Scene {
   makeMove(d) {
     this.canMove = false;
     this.configProps(d);
-    const {firstRow, lastRow, firstCol, lastCol, dRow, dCol,} = this;
+    const { firstRow, lastRow, firstCol, lastCol, dRow, dCol, } = this;
     let movedTiles = 0;
+    let movedSomething = false;
     for (let row = firstRow; row < lastRow; row++) {
       for (let col = firstCol; col < lastCol; col++) {
-        const _curRow = dRow === 1 ? (lastRow - 1) - row : row;
-        const _curCol = dCol === 1 ? (lastCol - 1) - col : col;
-        const _curTile = this.boardArray[_curRow][_curCol];
-        const _curVal = _curTile.tileValue;
+        const curRow = dRow === 1 ? (lastRow - 1) - row : row;
+        const curCol = dCol === 1 ? (lastCol - 1) - col : col;
+        const curTile = this.boardArray[curRow][curCol];
+        const curVal = curTile.tileValue;
 
-        if (_curVal != COVER_TILE_VAL) {
-          let newRow = _curRow;
-          let newCol = _curCol;
-          while (this.isLegalPosition(newRow + dRow, newCol + dCol, _curVal)) {
+        if (curVal != COVER_TILE_VAL) {
+          let newRow = curRow;
+          let newCol = curCol;
+          while (this.isLegalPosition(newRow + dRow, newCol + dCol, curVal)) {
             newRow += dRow;
             newCol += dCol;
           }
           movedTiles++;
-          _curTile.depth = movedTiles;
-          const newTile = this.boardArray[newRow][newCol];
-          const newPos = this.getTilePosition(newRow, newCol);
-          this.updateTilePosition(_curTile, newTile, newPos, _curVal);
+          if (newRow !== curRow || newCol !== curCol) {
+            movedSomething = true;
+            curTile.depth = movedTiles;
+            const newTile = this.boardArray[newRow][newCol];
+            const newPos = this.getTilePosition(newRow, newCol);
+            this.updateTilePosition(curTile, newTile, newPos, curVal);
+          }
         }
       }
     }
-    this.refreshBoard();
+    if (movedSomething) {
+      this.refreshBoard();
+    } else {
+      this.canMove = true;
+    }
   }
 
   refreshBoard() {
@@ -234,14 +242,14 @@ class PlayGame extends Phaser.Scene {
   isLegalPosition(row, col, value) {
     const rowInside = row >= 0 && row < this.rows;
     const colInside = col >= 0 && col < this.cols;
-    
+
     if (rowInside && colInside) {
       // 2 legal positions to move --- empty && same tile value
       const emptySpot = this.boardArray[row][col].tileValue === COVER_TILE_VAL;
       const sameValue = this.boardArray[row][col].tileValue === value;
-  
+
       return (emptySpot || sameValue);
-    } 
+    }
     return false;
   }
 }
