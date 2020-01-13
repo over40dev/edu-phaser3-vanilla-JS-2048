@@ -14,11 +14,10 @@ class PlayGame extends Phaser.Scene {
   create() {
     this.canMove = false;
     this.boardArray = [];
-    const { cols, rows } = this;
 
-    for (let row = 0; row < rows; row++) {
+    for (let row = 0; row < this.rows; row++) {
       this.boardArray[row] = [];
-      for (let col = 0; col < cols; col++) {
+      for (let col = 0; col < this.cols; col++) {
         const { x, y } = this.getTilePosition(row, col);
         this.add.image(x, y, 'emptytile');
         const tile = this.add.sprite(x, y, 'tiles', 0);
@@ -26,6 +25,7 @@ class PlayGame extends Phaser.Scene {
         this.boardArray[row][col] = {
           tileValue: COVER_TILE_VAL,
           tileSprite: tile,
+          upgraded: false,
         };
       }
     }
@@ -172,19 +172,18 @@ class PlayGame extends Phaser.Scene {
   }
 
   refreshBoard() {
-    const { rows, cols } = this;
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
+    for (let row = 0; row < this.rows; row++) {
+      for (let col = 0; col < this.cols; col++) {
         const { x, y } = this.getTilePosition(row, col);
-        const sprite = this.boardArray[row][col].tileSprite;
-        const tileValue = this.boardArray[row][col].tileValue;
-        sprite.x = x;
-        sprite.y = y;
+        const { tileSprite, tileValue } = this.boardArray[row][col];
+        tileSprite.x = x;
+        tileSprite.y = y;
         if (tileValue > COVER_TILE_VAL) {
-          sprite.visible = true;
-          sprite.setFrame(tileValue - 1);
+          tileSprite.visible = true;
+          tileSprite.setFrame(tileValue - 1);
+          this.boardArray[row][col].upgraded = false;
         } else {
-          sprite.visible = false;
+          tileSprite.visible = false;
         }
       }
     }
@@ -227,6 +226,7 @@ class PlayGame extends Phaser.Scene {
     curTile.tileValue = 0;
     if (newTile.tileValue === curVal) {
       newTile.tileValue++;
+      newTile.upgraded = true;
       curTile.tileSprite.setFrame(curVal)
     } else {
       newTile.tileValue = curVal;
@@ -247,8 +247,9 @@ class PlayGame extends Phaser.Scene {
       // 2 legal positions to move --- empty && same tile value
       const emptySpot = this.boardArray[row][col].tileValue === COVER_TILE_VAL;
       const sameValue = this.boardArray[row][col].tileValue === value;
+      const alreadyUpgraded = this.boardArray[row][col].upgraded;
 
-      return (emptySpot || sameValue);
+      return (emptySpot || (sameValue && !alreadyUpgraded));
     }
     return false;
   }
