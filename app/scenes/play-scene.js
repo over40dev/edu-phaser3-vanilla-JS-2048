@@ -7,24 +7,24 @@ class PlayGame extends Phaser.Scene {
     super('PlayGame');
   }
 
-  preload() {
-    this.configProps();
-  }
-
   create() {
+    const
+      { COVER_TILE_VAL } = gameConstants,
+      { rows, cols } = gameOptions;
+
     this.canMove = false;
     this.boardArray = [];
 
-    for (let row = 0; row < this.rows; row++) {
+    for (let row = 0; row < rows; row++) {
       this.boardArray[row] = [];
-      for (let col = 0; col < this.cols; col++) {
+      for (let col = 0; col < cols; col++) {
         const { x, y } = this.getTilePosition(row, col);
         this.add.image(x, y, 'emptytile');
         const tile = this.add.sprite(x, y, 'tiles', 0);
         tile.visible = false;
         this.boardArray[row][col] = {
-          tileValue: COVER_TILE_VAL,
-          tileSprite: tile,
+          value: COVER_TILE_VAL,
+          sprite: tile,
           upgraded: false,
         };
       }
@@ -36,8 +36,9 @@ class PlayGame extends Phaser.Scene {
   }
 
   addTile() {
-    const emptyTiles = [];
-    const { cols, rows } = this;
+    const
+      emptyTiles = [],
+      { cols, rows } = gameOptions;
 
     for (let row = 0; row < cols; row++) {
       for (let col = 0; col < rows; col++) {
@@ -47,14 +48,16 @@ class PlayGame extends Phaser.Scene {
       }
     }
     if (emptyTiles.length > 0) {
-      const { row, col } = cxRandom(emptyTiles);
-      const board = this.boardArray[row][col];
-      board.tileValue = 1;
-      board.tileSprite.visible = true;
-      board.tileSprite.setFrame(0);
-      board.tileSprite.alpha = 0;
+      const
+        { row, col } = cxRandom(emptyTiles),
+        chosenTile = this.boardArray[row][col];
+
+      chosenTile.value = 1;
+      chosenTile.sprite.visible = true;
+      chosenTile.sprite.setFrame(0);
+      chosenTile.sprite.alpha = 0;
       this.tweens.add({
-        targets: [board.tileSprite],
+        targets: [chosenTile.sprite],
         alpha: 1,
         duration: gameOptions.tweenSpeed,
         callbackScope: this,
@@ -64,7 +67,10 @@ class PlayGame extends Phaser.Scene {
   }
 
   isEmptyCell(row, col) {
-    return (this.boardArray[row][col].tileValue === COVER_TILE_VAL);
+    const
+      { COVER_TILE_VAL } = gameConstants;
+
+    return (this.boardArray[row][col].value === COVER_TILE_VAL);
   }
 
   handleKey(e) {
@@ -96,55 +102,56 @@ class PlayGame extends Phaser.Scene {
 
   handleSwipe(e) {
     if (this.canMove) {
-      const {
-        swipeMaxTime,
-        swipeMinDist,
-        swipeMinNormal,
-      } = gameOptions;
-      const swipeTime = e.upTime - e.downTime;
-      const fastEnough = swipeTime < swipeMaxTime;
-      const swipe = CX.getVectorPoint(e.upX - e.downX, e.upY - e.downY);
-      const swipeMagnitude = CX.getMagnitude(swipe);
-      const longEnough = swipeMagnitude > swipeMinDist;
-      if (longEnough && fastEnough) {
+      const swipe = CX.getVectorPoint(e.upX - e.downX, e.upY - e.downY)
+      if (this.validSwipe(e, swipe)) {
         CX.setMagnitude(swipe, 1); // normalize vector to magnitude of 1
-        if (swipe.x > swipeMinNormal) {
-          this.makeMove(RIGHT);
-        }
-        if (swipe.x < -swipeMinNormal) {
-          this.makeMove(LEFT);
-        }
-        if (swipe.y > swipeMinNormal) {
-          this.makeMove(DOWN);
-        }
-        if (swipe.y < -swipeMinNormal) {
-          this.makeMove(UP);
-        }
+        const direction = this.getDirection(swipe);
+        this.makeMove(direction);
       }
-      // console.log('time: ', swipeTime);
-      // console.log('H-dist: ', swipe.x);
-      // console.log('V-dist: ', swipe.y);
-      // console.log(
-      //   swipeMaxTime,
-      //   swipeMinDist,
-      //   swipeMinNormal,
-      // );
+    }
+  }
+  validSwipe(e, swipe) {
+    const
+      { swipeMaxTime, swipeMinDist, swipeMinNormal } = gameOptions,
+      swipeTime = e.upTime - e.downTime,
+      swipeMagnitude = CX.getMagnitude(swipe),
+      fastEnough = swipeTime < swipeMaxTime,
+      longEnough = swipeMagnitude > swipeMinDist;
+
+    return longEnough && fastEnough;
+  }
+
+  getDirection(swipe) {
+    const
+      { LEFT, RIGHT, UP, DOWN } = gameConstants,
+      { swipeMinNormal } = gameOptions;
+
+    if (swipe.x > swipeMinNormal) {
+      return RIGHT;
+    } else if (swipe.x < -swipeMinNormal) {
+      return LEFT;
+    } else if (swipe.y > swipeMinNormal) {
+      return DOWN;
+    } else if (swipe.y < -swipeMinNormal) {
+      return UP;
+    } else {
+      return null;
     }
   }
 
   /** TODO: makeMove impl v03 */
   makeMove(d) {
-    this.canMove = false;
-    this.configProps(d);
+    this.movingTiles = 0;
+    this.configGameOptions(d);
     const { firstRow, lastRow, firstCol, lastCol, dRow, dCol, } = this;
-    let movedTiles = 0;
-    let movedSomething = false;
+    this.canMove = false;
+
     for (let row = firstRow; row < lastRow; row++) {
       for (let col = firstCol; col < lastCol; col++) {
         const curRow = dRow === 1 ? (lastRow - 1) - row : row;
         const curCol = dCol === 1 ? (lastCol - 1) - col : col;
         const curTile = this.boardArray[curRow][curCol];
-        const curVal = curTile.tileValue;
+        const curVal = curTile.value;
 
         if (curVal != COVER_TILE_VAL) {
           let newRow = curRow;
@@ -164,9 +171,7 @@ class PlayGame extends Phaser.Scene {
         }
       }
     }
-    if (movedSomething) {
-      this.refreshBoard();
-    } else {
+    if (movingTiles === 0) {
       this.canMove = true;
     }
   }
@@ -174,46 +179,28 @@ class PlayGame extends Phaser.Scene {
   refreshBoard() {
     for (let row = 0; row < this.rows; row++) {
       for (let col = 0; col < this.cols; col++) {
-        const { x, y } = this.getTilePosition(row, col);
-        const { tileSprite, tileValue } = this.boardArray[row][col];
-        tileSprite.x = x;
-        tileSprite.y = y;
-        if (tileValue > COVER_TILE_VAL) {
-          tileSprite.visible = true;
-          tileSprite.setFrame(tileValue - 1);
+        const
+          { COVER_TILE_VAL } = this.tiles,
+          { x, y } = this.getTilePosition(row, col),
+          { sprite, value } = this.boardArray[row][col];
+
+        sprite.x = x;
+        sprite.y = y;
+        if (value > COVER_TILE_VAL) {
+          sprite.visible = true;
+          sprite.setFrame(value - 1);
           this.boardArray[row][col].upgraded = false;
         } else {
-          tileSprite.visible = false;
+          sprite.visible = false;
         }
       }
     }
     this.addTile();
   }
 
-  /**
-   * direction: LEFT | RIGHT | UP | DOWN
-   * @param {enum} d 
-   */
-  configProps(d = null) {
-    const { rows, cols } = gameOptions.board;
-    const { tileSize, tileSpacing } = gameOptions.tiles;
-    this.rows = rows;
-    this.cols = cols;
-    this.tileSize = tileSize;
-    this.tileSpacing = tileSpacing;
-    if (d) { // MOVE direction
-      this.dRow = (d === LEFT || d === RIGHT) ? 0 : (d === DOWN) ? 1 : -1;
-      this.dCol = (d === UP || d === DOWN) ? 0 : (d === RIGHT) ? 1 : -1;
-      this.firstRow = (d === UP) ? 1 : 0;
-      this.lastRow = rows - ((d === DOWN) ? 1 : 0);
-      this.firstCol = (d === LEFT) ? 1 : 0;
-      this.lastCol = cols - ((d === RIGHT) ? 1 : 0);
-    }
-
-  }
-
   getTilePosition(row, col) {
-    const { tileSize, tileSpacing } = this;
+    const { tileSize, tileSpacing } = gameOptions;
+
     return cxGeomPoint(
       (row + 1) * tileSpacing + (row + .5) * tileSize,
       (col + 1) * tileSpacing + (col + .5) * tileSize,
@@ -221,15 +208,15 @@ class PlayGame extends Phaser.Scene {
   }
 
   updateTilePosition(curTile, newTile, newPos, curVal) {
-    curTile.tileSprite.x = newPos.x;
-    curTile.tileSprite.y = newPos.y;
-    curTile.tileValue = 0;
-    if (newTile.tileValue === curVal) {
-      newTile.tileValue++;
+    curTilechosenTile.sprite.x = newPos.x;
+    curTilechosenTile.sprite.y = newPos.y;
+    curTile.value = 0;
+    if (newTile.value === curVal) {
+      newTile.value++;
       newTile.upgraded = true;
-      curTile.tileSprite.setFrame(curVal)
+      curTilechosenTile.sprite.setFrame(curVal)
     } else {
-      newTile.tileValue = curVal;
+      newTile.value = curVal;
     }
   }
 
@@ -245,8 +232,8 @@ class PlayGame extends Phaser.Scene {
 
     if (rowInside && colInside) {
       // 2 legal positions to move --- empty && same tile value
-      const emptySpot = this.boardArray[row][col].tileValue === COVER_TILE_VAL;
-      const sameValue = this.boardArray[row][col].tileValue === value;
+      const emptySpot = this.boardArray[row][col].value === COVER_TILE_VAL;
+      const sameValue = this.boardArray[row][col].value === value;
       const alreadyUpgraded = this.boardArray[row][col].upgraded;
 
       return (emptySpot || (sameValue && !alreadyUpgraded));
@@ -254,3 +241,4 @@ class PlayGame extends Phaser.Scene {
     return false;
   }
 }
+
