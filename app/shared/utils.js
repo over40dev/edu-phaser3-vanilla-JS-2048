@@ -4,16 +4,12 @@
  * required by app, etc.
  */
 const CX = {
-  random: (arr) => cxRandom(arr),
   resize: () => cxResize(),
+  random: (arr) => cxGetRandomElement(arr),
   getVectorPoint: (posX, posY) => cxGeomPoint(posX, posY),
   setMagnitude: (swipe, mag) => cxSetMagnitude(swipe, mag),
   getMagnitude: (swipe) => cxGetMagnitude(swipe),
 }
-
-
-
-
 
 /**
  * Utils.js --- CX-Phaser-Lite (just what's used)
@@ -39,8 +35,8 @@ function cxGeomPoint(posX, posY) {
   return new Phaser.Geom.Point(posX, posY);
 }
 
-function cxRandom(arr) {
-  return Phaser.Utils.Array.GetRandom(arr);
+function cxGetRandomElement(arr) {
+  return Phaser.Utils.Array.RemoveRandomElement(arr);
 }
 
 function cxSetMagnitude(swipe, mag = 1) {

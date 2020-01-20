@@ -20,11 +20,11 @@ class PlayGame extends Phaser.Scene {
       for (let col = 0; col < cols; col++) {
         const { x, y } = this.getTilePosition(row, col);
         this.add.image(x, y, 'emptytile');
-        const tile = this.add.sprite(x, y, 'tiles', 0);
-        tile.visible = false;
+        const tileSprite = this.add.sprite(x, y, 'tiles', 0);
+        tileSprite.visible = false;
         this.boardArray[row][col] = {
           value: COVER_TILE_VAL,
-          sprite: tile,
+          sprite: tileSprite,
           upgraded: false,
         };
       }
@@ -38,7 +38,7 @@ class PlayGame extends Phaser.Scene {
   addTile() {
     const
       emptyTiles = [],
-      { cols, rows } = gameOptions;
+      { cols, rows, tweenSpeed } = gameOptions;
 
     for (let row = 0; row < cols; row++) {
       for (let col = 0; col < rows; col++) {
@@ -49,20 +49,22 @@ class PlayGame extends Phaser.Scene {
     }
     if (emptyTiles.length > 0) {
       const
-        { row, col } = cxRandom(emptyTiles),
+        { row, col } = CX.random(emptyTiles),
         chosenTile = this.boardArray[row][col];
 
-      chosenTile.value = 1;
-      chosenTile.sprite.visible = true;
-      chosenTile.sprite.setFrame(0);
-      chosenTile.sprite.alpha = 0;
-      this.tweens.add({
-        targets: [chosenTile.sprite],
-        alpha: 1,
-        duration: gameOptions.tweenSpeed,
-        callbackScope: this,
-        onComplete: () => { this.canMove = true },
-      });
+      if (!!chosenTile) {
+        chosenTile.value = 1;
+        chosenTile.sprite.visible = true;
+        chosenTile.sprite.setFrame(0);
+        chosenTile.sprite.alpha = 0;
+        this.tweens.add({
+          targets: [chosenTile.sprite],
+          alpha: 1,
+          duration: tweenSpeed,
+          callbackScope: this,
+          onComplete: () => { this.canMove = true },
+        });
+      }
     }
   }
 
@@ -74,6 +76,7 @@ class PlayGame extends Phaser.Scene {
   }
 
   handleKey(e) {
+    console.log(e, this.canMove);
     if (this.canMove) {
       // look for WASD and arrow keys to move using keyboard
       const
@@ -155,10 +158,10 @@ class PlayGame extends Phaser.Scene {
     } else {
       return null;
     }
-    
+
     const
       { COVER_TILE_VAL } = gameConstants,
-      { dRow, dCol, firstRow, lastRow, firstCol, lastCol, } 
+      { dRow, dCol, firstRow, lastRow, firstCol, lastCol, }
         = this.setMoveOptions(d);
 
     for (let row = firstRow; row < lastRow; row++) {
@@ -166,11 +169,12 @@ class PlayGame extends Phaser.Scene {
         const curRow = dRow === 1 ? (lastRow - 1) - row : row;
         const curCol = dCol === 1 ? (lastCol - 1) - col : col;
         const curTile = this.boardArray[curRow][curCol];
+        const tileValue = curTile.value;
 
-        if (curTile.value != COVER_TILE_VAL) {
+        if (tileValue != 0) {
           let newRow = curRow;
           let newCol = curCol;
-          while (this.isLegalPosition(newRow + dRow, newCol + dCol, curTile.value)) {
+          while (this.isLegalPosition(newRow + dRow, newCol + dCol, tileValue)) {
             newRow += dRow;
             newCol += dCol;
           }
@@ -199,28 +203,31 @@ class PlayGame extends Phaser.Scene {
       dRow: (d === LEFT || d === RIGHT) ? 0 : (d === UP) ? -1 : 1,
       dCol: (d === UP || d === DOWN) ? 0 : (d === LEFT) ? -1 : 1,
       firstRow: (d === UP) ? 1 : 0,
-      lastRow: rows - ((d === DOWN) ?  1 : 0),
+      lastRow: rows - ((d === DOWN) ? 1 : 0),
       firstCol: (d === LEFT) ? 1 : 0,
-      lastCol: cols - ((d === RIGHT) ?  1 : 0),
+      lastCol: cols - ((d === RIGHT) ? 1 : 0),
     }
   }
 
   refreshBoard() {
-    for (let row = 0; row < this.rows; row++) {
-      for (let col = 0; col < this.cols; col++) {
-        const
-          { COVER_TILE_VAL } = this.tiles,
-          { x, y } = this.getTilePosition(row, col),
-          { sprite, value } = this.boardArray[row][col];
+    const
+      { COVER_TILE_VAL } = gameConstants,
+      { rows, cols } = gameOptions;
 
-        sprite.x = x;
-        sprite.y = y;
-        if (value > COVER_TILE_VAL) {
-          sprite.visible = true;
-          sprite.setFrame(value - 1);
-          this.boardArray[row][col].upgraded = false;
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
+        const
+          { x, y } = this.getTilePosition(row, col),
+          tile = this.boardArray[row][col];
+
+        tile.sprite.x = x;
+        tile.sprite.y = y;
+        if (tile.value > 0) {
+          tile.sprite.visible = true;
+          tile.sprite.setFrame(tile.value - 1);
+          tile.upgraded = false;
         } else {
-          sprite.visible = false;
+          tile.sprite.visible = false;
         }
       }
     }
@@ -240,7 +247,7 @@ class PlayGame extends Phaser.Scene {
       y: newPos.y,
       duration: tweenSpeed * distance / tileSize,
       callbackScope: this,
-      onComplete: function() {
+      onComplete: function () {
         this.movingTiles--;
         tileSprite.depth = 0;
         if (this.movingTiles === 0) {
@@ -249,7 +256,7 @@ class PlayGame extends Phaser.Scene {
       }
     })
   }
-  
+
   updateTilePosition(curTile, newTile) {
     if (newTile.value === curTile.value) {
       newTile.value++;
@@ -259,9 +266,9 @@ class PlayGame extends Phaser.Scene {
       newTile.value = curTile.value;
     }
   }
-  
+
   getTilePosition(row, col) {
-    const 
+    const
       { tileSize, tileSpacing } = gameOptions,
       posX = (col + 1) * tileSpacing + (col + .5) * tileSize,
       posY = (row + 1) * tileSpacing + (row + .5) * tileSize;
@@ -276,15 +283,20 @@ class PlayGame extends Phaser.Scene {
    * @param {number} value 
    */
   isLegalPosition(row, col, value) {
-    const rowInside = row >= 0 && row < this.rows;
-    const colInside = col >= 0 && col < this.cols;
+    const
+      { rows, cols } = gameOptions,
+      { COVER_TILE_VAL } = gameConstants,
+      rowInside = row >= 0 && row < rows,
+      colInside = col >= 0 && col < cols;
 
     if (rowInside && colInside) {
-      // 2 legal positions to move --- empty && same tile value
-      const emptySpot = this.boardArray[row][col].value === COVER_TILE_VAL;
-      const sameValue = this.boardArray[row][col].value === value;
-      const alreadyUpgraded = this.boardArray[row][col].upgraded;
+      const
+        tile = this.boardArray[row][col],
+        emptySpot = tile.value === COVER_TILE_VAL,
+        sameValue = tile.value === value,
+        alreadyUpgraded = tile.upgraded;
 
+      // 2 legal positions to move --- empty && same tile value
       return (emptySpot || (sameValue && !alreadyUpgraded));
     }
     return false;
