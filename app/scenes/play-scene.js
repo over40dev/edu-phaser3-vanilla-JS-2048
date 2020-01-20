@@ -150,7 +150,7 @@ class PlayGame extends Phaser.Scene {
     }
   }
 
-  /** TODO: makeMove impl v03 */
+  /** TODO: makeMove impl v04 */
   makeMove(d = null) {
     if (d) {
       this.movingTiles = 0;
@@ -166,12 +166,13 @@ class PlayGame extends Phaser.Scene {
 
     for (let row = firstRow; row < lastRow; row++) {
       for (let col = firstCol; col < lastCol; col++) {
-        const curRow = dRow === 1 ? (lastRow - 1) - row : row;
-        const curCol = dCol === 1 ? (lastCol - 1) - col : col;
-        const curTile = this.boardArray[curRow][curCol];
-        const tileValue = curTile.value;
+        const
+          curRow = dRow === 1 ? (lastRow - 1) - row : row,
+          curCol = dCol === 1 ? (lastCol - 1) - col : col,
+          curTile = this.boardArray[curRow][curCol],
+          tileValue = curTile.value;
 
-        if (tileValue != 0) {
+        if (tileValue !== 0) {
           let newRow = curRow;
           let newCol = curCol;
           while (this.isLegalPosition(newRow + dRow, newCol + dCol, tileValue)) {
@@ -180,11 +181,20 @@ class PlayGame extends Phaser.Scene {
           }
 
           if (newRow !== curRow || newCol !== curCol) {
-            const newTile = this.boardArray[newRow][newCol];
-            const newPos = this.getTilePosition(newRow, newCol);
-            this.moveTile(curTile.sprite, newPos);
+            const
+              newTile = this.boardArray[newRow][newCol],
+              newPos = this.getTilePosition(newRow, newCol),
+              willUpdate = newTile.value === tileValue;
+
+            this.moveTile(curTile.sprite, newPos, willUpdate);
             this.updateTilePosition(curTile, newTile);
             curTile.value = COVER_TILE_VAL;
+            if (willUpdate) {
+              newTile.value++;
+              newTile.upgraded = true;
+            } else {
+              newTile.value = tileValue;
+            }
           }
         }
       }
@@ -234,7 +244,7 @@ class PlayGame extends Phaser.Scene {
     this.addTile();
   }
 
-  moveTile(tileSprite, newPos) {
+  moveTile(tileSprite, newPos, upgrade) {
     const
       { tweenSpeed, tileSize } = gameOptions;
 
@@ -248,20 +258,47 @@ class PlayGame extends Phaser.Scene {
       duration: tweenSpeed * distance / tileSize,
       callbackScope: this,
       onComplete: function () {
-        this.movingTiles--;
-        tileSprite.depth = 0;
-        if (this.movingTiles === 0) {
-          this.refreshBoard();
+        if (upgrade) {
+          this.upgradeTile(tileSprite);
+        } else {
+          this.endTween(tileSprite);
         }
       }
     })
+  }
+
+  upgradeTile(tileSprite) {
+    const
+      { tweenSpeed } = gameOptions;
+    
+    tileSprite.setFrame(tileSprite.frame.name + 1);
+    this.tweens.add({
+      targets: [tileSprite],
+      scaleX: 1.1,
+      scaleY: 1.1,
+      duration: tweenSpeed,
+      yoyo: true,
+      repeat: 1,
+      callbackScope: this,
+      onComplete: function() {
+        this.endTween(tileSprite);
+      }
+    });
+  }
+
+  endTween(tileSprite) {
+    this.movingTiles--;
+    tileSprite.depth = 0;
+    if (this.movingTiles === 0) {
+      this.refreshBoard();
+    }
   }
 
   updateTilePosition(curTile, newTile) {
     if (newTile.value === curTile.value) {
       newTile.value++;
       newTile.upgraded = true;
-      curTile.sprite.setFrame(curTile.value)
+      curTile.sprite.setFrame(curTile.value);
     } else {
       newTile.value = curTile.value;
     }
@@ -276,8 +313,7 @@ class PlayGame extends Phaser.Scene {
     return CX.getVectorPoint(posX, posY);
   }
 
-  /**
-   * 
+  /** @summary check if legal move by verifying position
    * @param {number} row 
    * @param {number} col 
    * @param {number} value 
@@ -292,7 +328,7 @@ class PlayGame extends Phaser.Scene {
     if (!rowInside || !colInside) {
       return false;
     }
-    
+
     const
       tile = this.boardArray[row][col],
       emptySpot = tile.value === COVER_TILE_VAL,
