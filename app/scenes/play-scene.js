@@ -289,16 +289,17 @@ class PlayGame extends Phaser.Scene {
       rowInside = row >= 0 && row < rows,
       colInside = col >= 0 && col < cols;
 
-    if (rowInside && colInside) {
-      const
-        tile = this.boardArray[row][col],
-        emptySpot = tile.value === COVER_TILE_VAL,
-        sameValue = tile.value === value,
-        alreadyUpgraded = tile.upgraded;
-
-      // 2 legal positions to move --- empty && same tile value
-      return (emptySpot || (sameValue && !alreadyUpgraded));
+    if (!rowInside || !colInside) {
+      return false;
     }
-    return false;
+    
+    const
+      tile = this.boardArray[row][col],
+      emptySpot = tile.value === COVER_TILE_VAL,
+      sameValue = tile.value === value,
+      alreadyUpgraded = tile.upgraded;
+
+    // 2 legal positions to move --- empty && same tile value
+    return (emptySpot || (sameValue && !alreadyUpgraded));
   }
 }
