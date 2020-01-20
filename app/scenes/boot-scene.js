@@ -5,7 +5,9 @@ class BootGame extends Phaser.Scene {
 
   preload() {
     // absolute path???
-    const {tileSize} = gameOptions.tiles;
+    const 
+      { tileSize } = gameOptions;
+
     this.load.image('emptytile', 'app/assets/sprites/emptytile.png');
     this.load.spritesheet('tiles', 'app/assets/sprites/tiles.png', {
       frameWidth: tileSize,
