@@ -8,7 +8,7 @@ const
     cols: 4,
     tileSize: 200,
     tileSpacing: 20,
-    tweenSpeed: 200,
+    tweenSpeed: 50,
     swipeMaxTime: 1000,
     swipeMinDist: 20,
     swipeMinNormal: 0.85,

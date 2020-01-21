@@ -33,6 +33,8 @@ class PlayGame extends Phaser.Scene {
     this.addTile();
     this.input.keyboard.on('keydown', this.handleKey, this);
     this.input.on('pointerup', this.handleSwipe, this);
+    this.moveSound = this.sound.add('move');
+    this.growSound = this.sound.add('grow');
   }
 
   addTile() {
@@ -201,6 +203,8 @@ class PlayGame extends Phaser.Scene {
     }
     if (this.movingTiles === 0) {
       this.canMove = true;
+    } else {
+      this.moveSound.play();
     }
   }
 
@@ -272,6 +276,7 @@ class PlayGame extends Phaser.Scene {
       { tweenSpeed } = gameOptions;
     
     tileSprite.setFrame(tileSprite.frame.name + 1);
+    this.growSound.play();
     this.tweens.add({
       targets: [tileSprite],
       scaleX: 1.1,
