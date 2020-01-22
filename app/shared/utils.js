@@ -5,8 +5,8 @@
  */
 const CX = {
   resize: () => cxResize(),
-  random: (arr) => cxGetRandomElement(arr),
-  getVectorPoint: (posX, posY) => cxGeomPoint(posX, posY),
+  getRandomElement: (arr) => cxGetRandomElement(arr),
+  getVectorPoint: (posX, posY) => cxGetGeomPoint(posX, posY),
   setMagnitude: (swipe, mag) => cxSetMagnitude(swipe, mag),
   getMagnitude: (swipe) => cxGetMagnitude(swipe),
 }
@@ -31,7 +31,7 @@ function cxResize() {
 }
 
 // Based on CX use of Phaser game methods and objects
-function cxGeomPoint(posX, posY) {
+function cxGetGeomPoint(posX, posY) {
   return new Phaser.Geom.Point(posX, posY);
 }
 

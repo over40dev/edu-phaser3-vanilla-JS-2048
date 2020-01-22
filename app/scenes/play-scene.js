@@ -42,8 +42,8 @@ class PlayGame extends Phaser.Scene {
       emptyTiles = [],
       { cols, rows, tweenSpeed } = gameOptions;
 
-    for (let row = 0; row < cols; row++) {
-      for (let col = 0; col < rows; col++) {
+    for (let row = 0; row < rows; row++) {
+      for (let col = 0; col < cols; col++) {
         if (this.isEmptyCell(row, col)) {
           emptyTiles.push({ row, col });
         }
@@ -51,7 +51,7 @@ class PlayGame extends Phaser.Scene {
     }
     if (emptyTiles.length > 0) {
       const
-        { row, col } = CX.random(emptyTiles),
+        { row, col } = CX.getRandomElement(emptyTiles),
         chosenTile = this.boardArray[row][col];
 
       if (!!chosenTile) {
@@ -110,22 +110,20 @@ class PlayGame extends Phaser.Scene {
 
   handleSwipe(e) {
     if (this.canMove) {
-      const swipe = CX.getVectorPoint(e.upX - e.downX, e.upY - e.downY)
-      if (this.validSwipe(e, swipe)) {
-        const
-          { x, y } = CX.setMagnitude(swipe, 1), // normalize vector to magnitude of 1
-          direction = this.getDirection(x, y);
+      const
+        // { swipeMinNormal } = gameOptions,
+        swipe = CX.getVectorPoint(e.upX - e.downX, e.upY - e.downY);
 
-        if (direction) {
-          this.makeMove(direction);
-        }
+      console.log('handleSwipe: ', swipe);
+      if (this.validSwipe(e, swipe)) {
+        this.handleMove(swipe);
       }
     }
   }
 
   validSwipe(e, swipe) {
     const
-      { swipeMaxTime, swipeMinDist, swipeMinNormal } = gameOptions,
+      { swipeMaxTime, swipeMinDist } = gameOptions,
       swipeTime = e.upTime - e.downTime,
       swipeMagnitude = CX.getMagnitude(swipe),
       fastEnough = swipeTime < swipeMaxTime,
@@ -134,21 +132,26 @@ class PlayGame extends Phaser.Scene {
     return longEnough && fastEnough;
   }
 
-  getDirection(swipe) {
-    const
-      { LEFT, RIGHT, UP, DOWN } = gameConstants,
-      { swipeMinNormal } = gameOptions;
+  handleMove(swipe) {
+    if (!swipe) { return; }
 
+    const
+      { swipeMinNormal } = gameOptions,
+      { RIGHT, LEFT, UP, DOWN } = gameConstants;
+
+    // CX.setMagnitude(swipe, 1), // normalize vector to magnitude of 1
+    Phaser.Geom.Point.SetMagnitude(swipe, 1);
     if (swipe.x > swipeMinNormal) {
-      return RIGHT;
-    } else if (swipe.x < -swipeMinNormal) {
-      return LEFT;
-    } else if (swipe.y > swipeMinNormal) {
-      return DOWN;
-    } else if (swipe.y < -swipeMinNormal) {
-      return UP;
-    } else {
-      return null;
+      this.makeMove(RIGHT);
+    }
+    if (swipe.x < -swipeMinNormal) {
+      this.makeMove(LEFT);
+    }
+    if (swipe.y > swipeMinNormal) {
+      this.makeMove(DOWN);
+    }
+    if (swipe.y < -swipeMinNormal) {
+      this.makeMove(UP);
     }
   }
 
@@ -274,7 +277,7 @@ class PlayGame extends Phaser.Scene {
   upgradeTile(tileSprite) {
     const
       { tweenSpeed } = gameOptions;
-    
+
     tileSprite.setFrame(tileSprite.frame.name + 1);
     this.growSound.play();
     this.tweens.add({
@@ -285,7 +288,7 @@ class PlayGame extends Phaser.Scene {
       yoyo: true,
       repeat: 1,
       callbackScope: this,
-      onComplete: function() {
+      onComplete: function () {
         this.endTween(tileSprite);
       }
     });
@@ -311,11 +314,17 @@ class PlayGame extends Phaser.Scene {
 
   getTilePosition(row, col) {
     const
-      { tileSize, tileSpacing } = gameOptions,
+      { rows, cols, tileSize, tileSpacing } = gameOptions;
+    let
       posX = (col + 1) * tileSpacing + (col + .5) * tileSize,
-      posY = (row + 1) * tileSpacing + (row + .5) * tileSize;
+      posY = (row + 1) * tileSpacing + (row + .5) * tileSize,
+      boardHeight = (rows + 1) * tileSpacing + (rows * tileSize),
+      offsetY = (game.config.height - boardHeight) / 2;
 
-    return CX.getVectorPoint(posX, posY);
+    posY += offsetY;
+
+    // return CX.getVectorPoint(posX, posY);
+    return new Phaser.Geom.Point(posX, posY);
   }
 
   /** @summary check if legal move by verifying position
