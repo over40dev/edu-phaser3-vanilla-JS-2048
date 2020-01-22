@@ -7,7 +7,13 @@ class BootGame extends Phaser.Scene {
     // absolute path???
     const 
       { tileSize } = gameOptions;
-
+    
+    this.load.image('restart', 'app/assets/sprites/restart.png');
+    this.load.image('scorepanel', 'app/assets/sprites/scorepanel.png');
+    this.load.image('scorelabels', 'app/assets/sprites/scorelabels.png');
+    this.load.image('logo', 'app/assets/sprites/logo.png');
+    this.load.image('howtoplay', 'app/assets/sprites/howtoplay.png');
+    this.load.image('gametitle', 'app/assets/sprites/gametitle.png');
     this.load.image('emptytile', 'app/assets/sprites/emptytile.png');
     this.load.spritesheet('tiles', 'app/assets/sprites/tiles.png', {
       frameWidth: tileSize,

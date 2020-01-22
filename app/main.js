@@ -5,7 +5,7 @@ window.onload = function () {
     gameConfig = { // based on Portrait layout
       width: width,
       height: width * aspectRatio,
-      backgroundColor: 0xecf0f1,
+      backgroundColor: 0x000000,
       scene: [BootGame, PlayGame],
     };
 
