@@ -1,11 +1,12 @@
 window.onload = function () {
   const
-    { cols, rows, tileSpacing, tileSize } = gameOptions,
-    gameConfig = {
-      width: cols * (tileSize + tileSpacing) + tileSpacing,
-      height: rows * (tileSize + tileSpacing) + tileSpacing,
+    { cols, tileSpacing, tileSize, aspectRatio } = gameOptions,
+    width = cols * (tileSize + tileSpacing) + tileSpacing,
+    gameConfig = { // based on Portrait layout
+      width: width,
+      height: width * aspectRatio,
       backgroundColor: 0xecf0f1,
-      scene: [BootGame, PlayGame]
+      scene: [BootGame, PlayGame],
     };
 
   game = new Phaser.Game(gameConfig);
