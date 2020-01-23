@@ -10,7 +10,20 @@ class PlayGame extends Phaser.Scene {
   create() {
     const
       { COVER_TILE_VAL } = gameConstants,
-      { rows, cols } = gameOptions;
+      { rows, cols } = gameOptions,
+      restartXY = this.getTilePosition(-0.8, cols - 1),
+      restartBtn = this.add.sprite(restartXY.x, restartXY.y, 'restart'),
+      scoreXY = this.getTilePosition(-0.8, 1),
+      scorePanel = this.add.image(scoreXY.x, scoreXY.y, 'scorepanel'),
+      scoreLabels = this.add.image(scoreXY.x, scoreXY.y - 70, 'scorelabels'),
+      gameTitle = this.add.image(10, 5, 'gametitle'),
+      howTo = this.add.image(game.config.width, 5, 'howtoplay'),
+      logo = this.add.sprite(game.config.width / 2, game.config.height, 'logo');
+
+    logo.setScale(.8, .8);
+    logo.setOrigin(0.5, 1);
+    gameTitle.setOrigin(0, 0);
+    howTo.setOrigin(1, 0);
 
     this.canMove = false;
     this.boardArray = [];
