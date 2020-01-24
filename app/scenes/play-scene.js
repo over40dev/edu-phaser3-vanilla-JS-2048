@@ -10,7 +10,7 @@ class PlayGame extends Phaser.Scene {
   create() {
     const
       { COVER_TILE_VAL } = gameConstants,
-      { rows, cols } = gameOptions,
+      { rows, cols, localStorageName } = gameOptions,
       restartXY = this.getTilePosition(-0.8, cols - 1),
       restartBtn = this.add.sprite(restartXY.x, restartXY.y, 'restart'),
       scoreXY = this.getTilePosition(-0.8, 1),
@@ -26,7 +26,11 @@ class PlayGame extends Phaser.Scene {
     this.scoreText = this.add.bitmapText(textXY.x, textXY.y, 'font', 0);
     
     textXY = this.getTilePosition(-.92, 1.1);
-    this.bestScoreText = this.add.bitmapText(textXY.x, textXY.y, 'font', 0);
+    this.bestScore = localStorage.getItem(localStorageName);
+    if (this.bestScore === null) {
+      this.bestScore = 0;
+    }
+    this.bestScoreText = this.add.bitmapText(textXY.x, textXY.y, 'font', this.bestScore.toString());
     
     this.score = 0
 
@@ -260,9 +264,14 @@ class PlayGame extends Phaser.Scene {
 
   refreshBoard() {
     const
-      { rows, cols } = gameOptions;
+      { rows, cols, localStorageName } = gameOptions;
 
     this.scoreText.text = this.score.toString();
+    if (this.score > this.bestScore) {
+      this.bestScore = this.score;
+      localStorage.setItem(localStorageName, this.bestScore);
+      this.bestScoreText.text = this.bestScore.toString();
+    }
 
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {

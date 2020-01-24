@@ -13,6 +13,7 @@ const
     swipeMinDist: 20,
     swipeMinNormal: 0.85,
     aspectRatio: 16/9,
+    localStorageName: 'topscore4096',
   },
   gameConstants = {
     COVER_TILE_VAL: 0,
