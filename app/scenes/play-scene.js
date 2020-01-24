@@ -27,20 +27,21 @@ class PlayGame extends Phaser.Scene {
     
     textXY = this.getTilePosition(-.92, 1.1);
     this.bestScoreText = this.add.bitmapText(textXY.x, textXY.y, 'font', 0);
+    
+    this.score = 0
 
     gameTitle.setOrigin(0, 0);
     howTo.setOrigin(1, 0);
     restartBtn
       .setInteractive()
-      .on('pointerdown', function () {
+      .on('pointerdown', () => {
         this.scene.start('PlayGame');
-        console.log(this, this.scene);
-      }, this);
+      });
     logo
       .setOrigin(0.5, 1)
       .setScale(.8, .8)
       .setInteractive()
-      .on("pointerdown", function () {
+      .on("pointerdown", () => {
         window.location.href = 'https://juliegirlgames.com'
       });
 
@@ -110,7 +111,6 @@ class PlayGame extends Phaser.Scene {
   }
 
   handleKey(e) {
-    console.log(e, this.canMove);
     if (this.canMove) {
       // look for WASD and arrow keys to move using keyboard
       const
@@ -146,7 +146,6 @@ class PlayGame extends Phaser.Scene {
         // { swipeMinNormal } = gameOptions,
         swipe = CX.getVectorPoint(e.upX - e.downX, e.upY - e.downY);
 
-      // console.log('handleSwipe: ', swipe);
       if (this.validSwipe(e, swipe)) {
         this.handleMove(swipe);
       }
@@ -229,6 +228,7 @@ class PlayGame extends Phaser.Scene {
             if (willUpdate) {
               newTile.value++;
               newTile.upgraded = true;
+              this.score += Math.pow(2, newTile.value);
             } else {
               newTile.value = tileValue;
             }
@@ -260,8 +260,9 @@ class PlayGame extends Phaser.Scene {
 
   refreshBoard() {
     const
-      { COVER_TILE_VAL } = gameConstants,
       { rows, cols } = gameOptions;
+
+    this.scoreText.text = this.score.toString();
 
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
