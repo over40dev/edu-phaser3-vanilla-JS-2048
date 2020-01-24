@@ -19,6 +19,14 @@ class PlayGame extends Phaser.Scene {
       gameTitle = this.add.image(10, 5, 'gametitle'),
       howTo = this.add.image(game.config.width, 5, 'howtoplay'),
       logo = this.add.sprite(game.config.width / 2, game.config.height, 'logo');
+    let
+      textXY;
+      
+    textXY = this.getTilePosition(-.92, -.4);
+    this.scoreText = this.add.bitmapText(textXY.x, textXY.y, 'font', 0);
+    
+    textXY = this.getTilePosition(-.92, 1.1);
+    this.bestScoreText = this.add.bitmapText(textXY.x, textXY.y, 'font', 0);
 
     gameTitle.setOrigin(0, 0);
     howTo.setOrigin(1, 0);

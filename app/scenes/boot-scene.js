@@ -21,6 +21,7 @@ class BootGame extends Phaser.Scene {
     });
     this.load.audio('move', ['app/assets/sounds/move.ogg', 'app/assets/sounds/move.mp3']);
     this.load.audio('grow', ['app/assets/sounds/grow.ogg', 'app/assets/sounds/grow.mp3']);
+    this.load.bitmapFont('font', 'app/assets/fonts/font.png', 'app/assets/fonts/font.fnt');
   }
 
   create() {
