@@ -20,10 +20,21 @@ class PlayGame extends Phaser.Scene {
       howTo = this.add.image(game.config.width, 5, 'howtoplay'),
       logo = this.add.sprite(game.config.width / 2, game.config.height, 'logo');
 
-    logo.setScale(.8, .8);
-    logo.setOrigin(0.5, 1);
     gameTitle.setOrigin(0, 0);
     howTo.setOrigin(1, 0);
+    restartBtn
+      .setInteractive()
+      .on('pointerdown', function () {
+        this.scene.start('PlayGame');
+        console.log(this, this.scene);
+      }, this);
+    logo
+      .setOrigin(0.5, 1)
+      .setScale(.8, .8)
+      .setInteractive()
+      .on("pointerdown", function () {
+        window.location.href = 'https://juliegirlgames.com'
+      });
 
     this.canMove = false;
     this.boardArray = [];
@@ -127,7 +138,7 @@ class PlayGame extends Phaser.Scene {
         // { swipeMinNormal } = gameOptions,
         swipe = CX.getVectorPoint(e.upX - e.downX, e.upY - e.downY);
 
-      console.log('handleSwipe: ', swipe);
+      // console.log('handleSwipe: ', swipe);
       if (this.validSwipe(e, swipe)) {
         this.handleMove(swipe);
       }
