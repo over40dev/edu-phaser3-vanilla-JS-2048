@@ -384,6 +384,11 @@ class PlayGame extends Phaser.Scene {
     if (!rowInside || !colInside) {
       return false;
     }
+
+    if (this.boardArray[row][col].value === 12) {
+      return false;
+    }
+
     const
       tile = this.boardArray[row][col],
       emptySpot = tile.value === COVER_TILE_VAL,
