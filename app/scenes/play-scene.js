@@ -13,6 +13,7 @@ class PlayGame extends Phaser.Scene {
       { rows, cols, localStorageName } = gameOptions,
       restartXY = this.getTilePosition(-0.8, cols - 1),
       restartBtn = this.add.sprite(restartXY.x, restartXY.y, 'restart'),
+      fullScreenButton = this.add.sprite(restartBtn.x, restartBtn.y - 120, 'fullscreen'),
       scoreXY = this.getTilePosition(-0.8, 1),
       scorePanel = this.add.image(scoreXY.x, scoreXY.y, 'scorepanel'),
       scoreLabels = this.add.image(scoreXY.x, scoreXY.y - 70, 'scorelabels'),
@@ -21,21 +22,33 @@ class PlayGame extends Phaser.Scene {
       logo = this.add.sprite(game.config.width / 2, game.config.height, 'logo');
     let
       textXY;
-      
+
+
     textXY = this.getTilePosition(-.92, -.4);
     this.scoreText = this.add.bitmapText(textXY.x, textXY.y, 'font', 0);
-    
+
     textXY = this.getTilePosition(-.92, 1.1);
     this.bestScore = localStorage.getItem(localStorageName);
     if (this.bestScore === null) {
       this.bestScore = 0;
     }
     this.bestScoreText = this.add.bitmapText(textXY.x, textXY.y, 'font', this.bestScore.toString());
-    
+
     this.score = 0
 
     gameTitle.setOrigin(0, 0);
     howTo.setOrigin(1, 0);
+
+    fullScreenButton
+      .setInteractive()
+      .on('pointerup', () => {
+        if (!this.scale.isFullscreen) {
+          this.scale.startFullscreen();
+        } else {
+          this.scale.stopFullscreen();
+        }
+      });
+
     restartBtn
       .setInteractive()
       .on('pointerdown', () => {
