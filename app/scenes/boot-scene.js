@@ -8,6 +8,7 @@ class BootGame extends Phaser.Scene {
     const 
       { tileSize } = gameOptions;
     
+    this.load.image('fullscreen', 'assets/sprites/fullscreen.png');
     this.load.image('restart', 'assets/sprites/restart.png');
     this.load.image('scorepanel', 'assets/sprites/scorepanel.png');
     this.load.image('scorelabels', 'assets/sprites/scorelabels.png');
