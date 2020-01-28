@@ -5,21 +5,13 @@ body {
   overflow: hidden;
 }
 
-canvas {
+/* canvas {
   background-color: black;
   width: 100vw;
   height: auto;
   margin: 50px 0;
   padding: 0;
-}
-
-/* canvas {
-  display: block;
-  margin: 50px 0;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate3d(-50%, -50%, 0);
 } */
+
 
 
