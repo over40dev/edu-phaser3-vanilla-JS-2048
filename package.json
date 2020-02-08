@@ -2,7 +2,7 @@
   "name": "jgg4096",
   "version": "0.1.0",
   "description": "2048 clone",
-  "main": "index.js",
+  "main": "main.js",
   "directories": {
     "lib": "lib"
   },

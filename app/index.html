@@ -2,28 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;"> -->
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self'; data: content;"> -->
   <meta name="format-detection" content="telephone=no">
-  <meta name="viewport" content="width=device-width, viewport-fit=cover, initial-scale=1, user-scalable=0, minimal-ui>
-  <!-- <meta name="viewport" 
-    content="width=device-width, initial-scale=1.0, user-scalable=0,
-    maximum-scale=1.0, minimum-scale=1.0, minimal-ui"> -->
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>4096</title>
-  <link rel="stylesheet" href="main.css">
+  <!-- <script type="text/javascript" src="cordova.js"></! --> --
+  <script src="./lib/phaser.min.js"></script>
+  <script src="./shared/config.js"></script>
+  <script src="./shared/utils.js"></script>
+  <script src="./Game4096.js"></script>
+  <script src="./scenes/play-scene.js"></script>
+  <script src="./scenes/boot-scene.js"></script>
+  <script src="./main.js"></script>
+  <link rel="stylesheet" type="text/css" href="main.css">
 </head>
 <body>
 
-  <div id="game4096"></div>
+  <div id="container" class="app"></div>
 
+<!--  <body>-->
+<!--  <div class="app">-->
+<!--    <h1>Apache Cordova</h1>-->
+<!--    <div id="deviceready" class="blink">-->
+<!--      <p class="event listening">Connecting to Device</p>-->
+<!--      <p class="event received">Device is Ready</p>-->
+<!--    </div>-->
+<!--  </div>-->
 
-  <script src="cordova.js"></script>
-  <script src="lib/phaser.min.js"></script>
-  <script src="shared/config.js"></script>
-  <script src="shared/utils.js"></script>
-  <script src="scenes/play-scene.js"></script>
-  <script src="scenes/boot-scene.js"></script>
-  <script src="main.js"></script>
+<!--  <script type="text/javascript" src="js/index.js"></script>-->
+<!--  </body>-->
+
   
 </body>
+
+
 </html>
